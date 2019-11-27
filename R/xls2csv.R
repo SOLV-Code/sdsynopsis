@@ -18,7 +18,7 @@ if(is.null(file.in)){warning("need an input file path");stop()}
 if(is.null(file.out)){warning("need an output file path");stop()}
 if(!(tolower(db.type) %in% c("nuseds","epad","mrp") ) ){warning(paste(db.type,"is not a valid database type"));stop()}
 
-file.read <- readxl(file.in, sheet = sheet.read,na=na.strings)
+file.read <- read_excel(file.in, sheet = sheet.read,na=na.strings)
 
 
 write.csv(file.read,file.out, row.names=FALSE)
