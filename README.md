@@ -1,7 +1,23 @@
 # sdsynopsis-Package
 Package with functions for extracting, merging, and summarizing salmon data from various databases
 
-**THIS IS AN EARLY PROTOTYPE**
+
+**Important Note**
+
+*THIS IS AN EARLY PROTOTYPE*. This package is under development. Functions will change rapidly and substantially. Do not use these if you are not part of the development team!
+
+## Install
+
+To install this package directly from github, use
+
+```
+install.packages("devtools") # Install the devtools package
+library(devtools) # Load the devtools package.
+install_github("sdsynopsis", 
+				dependencies = TRUE,
+                build_vignettes = FALSE)
+library(MetricsTest)				
+```
 
 ## Overview
 
