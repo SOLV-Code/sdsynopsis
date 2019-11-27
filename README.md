@@ -16,7 +16,7 @@ library(devtools) # Load the devtools package.
 install_github("sdsynopsis", 
 				dependencies = TRUE,
                 build_vignettes = FALSE)
-library(MetricsTest)				
+library(sdsynopsis)				
 ```
 
 ## Overview
