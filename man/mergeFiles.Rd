@@ -4,7 +4,9 @@
 \alias{mergeFiles}
 \title{mergeFiles}
 \usage{
-mergeFiles(nuseds.rds.file, nuseds.pop.info, epad.rds.file)
+mergeFiles(nuseds.rds.file, nuseds.pop.info, epad.rds.file,
+  out.folder = "OUTPUT", tracking.folder = "DATA/TrackingFiles",
+  lookup.folder = "DATA/LookupFiles")
 }
 \arguments{
 \item{nuseds.rds.file}{path to the nuSEDS input file (in RDS format)}
@@ -12,9 +14,16 @@ mergeFiles(nuseds.rds.file, nuseds.pop.info, epad.rds.file)
 \item{nuseds.pop.info}{path to the pop/site info file from nuSEDS (in csv format)}
 
 \item{epad.rds.file}{path to the EPAD input file (in RDS format)}
+
+\item{out.folder}{path for storing output (CU summary stored there)}
+
+\item{tracking.folder}{path for storing tracking files (site mismatches etc. stored there)}
+
+\item{lookup.folder}{path for storing generated lookup files ("rosetta" files stored there)}
 }
 \description{
-Function to merge/match records across databases. Generates various outputs (rosetta files, mismatch tracking)
+Function to merge/match records across databases. Generates various outputs
+(rosetta files, mismatch tracking). Target folders are generated if they don't exist
 }
 \examples{
 \dontrun{mergeFiles(nuseds.rds.file = "DATA/RDSFiles/nuSEDS.RDS",
