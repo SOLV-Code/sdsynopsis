@@ -26,8 +26,8 @@ mergeFiles <- function(nuseds.rds.file,nuseds.pop.info,epad.rds.file,
 if(any(is.null(nuseds.rds.file),is.null(nuseds.pop.info),is.null(epad.rds.file))){warning("1 or more inputs missing");stop()}
 
 if(!dir.exists(out.folder)){dir.create(out.folder,recursive = TRUE)}
-if(!dir.exists(tracking.folder)){dir.create(out.folder,recursive = TRUE)}
-if(!dir.exists(lookup.folder)){dir.create(out.folder,recursive = TRUE)}
+if(!dir.exists(tracking.folder)){dir.create(tracking.folder,recursive = TRUE)}
+if(!dir.exists(lookup.folder)){dir.create(lookup.folder,recursive = TRUE)}
 
 
 # read in files
