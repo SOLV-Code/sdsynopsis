@@ -55,16 +55,40 @@ rosetta.pop <- nuseds.info %>% select(SPECIES_QUALIFIED,POP_ID,SYSTEM_SITE, FULL
                     mutate(SiteLabel= gsub("-","",SiteLabel))  %>%       #str_replace was skipping rows?
                     mutate(SiteLabel= gsub(" ","",SiteLabel))  %>%
                     mutate(SiteLabel= gsub("river","r",SiteLabel))  %>%
-                    mutate(SiteLabel= gsub("creek","cr",SiteLabel))
+                    mutate(SiteLabel= gsub("creek","cr",SiteLabel))  %>%
+                    mutate(SiteLabel= gsub("upper","up",SiteLabel))
+
+
+nuseds.db <- nuseds.db %>%
+                rename(CU_ID = FULL_CU_IN,Site_Type = GFE_TYPE,Species = SPECIES_QUALIFIED )  %>%
+                # remove up to 2 leading zeroes to get nuseds ID
+                mutate(CU_ID_Short = gsub("-0","-",gsub("-0","-",CU_ID) ))  %>%
+                mutate(CU_ID_Min = gsub("-","",CU_ID_Short))  %>%
+                mutate(SiteLabel = paste(CU_ID_Short, tolower(SYSTEM_SITE),sep="_"))  %>%
+                mutate(SiteLabel= gsub("-","",SiteLabel))  %>%       #str_replace was skipping rows?
+                mutate(SiteLabel= gsub(" ","",SiteLabel))  %>%
+                mutate(SiteLabel= gsub("river","r",SiteLabel))  %>%
+                mutate(SiteLabel= gsub("creek","cr",SiteLabel))  %>%
+                mutate(SiteLabel= gsub("upper","up",SiteLabel))
+
+saveRDS(nuseds.db, gsub(".RDS","_mod.RDS",nuseds.rds.file))
+
 
 epad.db <- epad.db %>%  mutate(SiteLabel = paste(CU_INDEX, tolower(RETURN_SITE_NAME),sep="_"))  %>%
                         mutate(SiteLabel= gsub("-","",SiteLabel))  %>%
                         mutate(SiteLabel= gsub(" ","",SiteLabel))  %>%
                         mutate(SiteLabel= gsub("river","r",SiteLabel))  %>%
                         mutate(SiteLabel= gsub("creek","cr",SiteLabel))  %>%
+                        mutate(SiteLabel= gsub("upper","up",SiteLabel))
                         rename(SYSTEM_SITE_EPAD = RETURN_SITE_NAME,
                                CU_ID_EPAD = CU_INDEX,
-                               CU_NAME_EPAD = CU_NAME)
+                               CU_NAME_EPAD = CU_NAME)  %>%
+                        mutate(CU_ID_Short = gsub("-0","-",gsub("-0","-",CU_ID_EPAD) ))  %>%
+                        mutate(CU_ID_Min = gsub("-","",CU_ID_Short))  %>%
+
+saveRDS(epad.db, gsub(".RDS","_mod.RDS",epad.rds.file))
+
+
 
 
 # add in CU info
