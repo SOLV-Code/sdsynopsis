@@ -66,12 +66,14 @@ nuseds.db <- nuseds.db %>%
 saveRDS(nuseds.db, gsub("\\.RDS","_mod.RDS",nuseds.rds.file))
 
 
+
+
 epad.db <- epad.db %>%  mutate(SiteLabel = paste(CU_INDEX, tolower(RETURN_SITE_NAME),sep="_"))  %>%
                         mutate(SiteLabel= gsub("-","",SiteLabel))  %>%
                         mutate(SiteLabel= gsub(" ","",SiteLabel))  %>%
                         mutate(SiteLabel= gsub("river","r",SiteLabel))  %>%
                         mutate(SiteLabel= gsub("creek","cr",SiteLabel))  %>%
-                        mutate(SiteLabel= gsub("upper","up",SiteLabel))
+                        mutate(SiteLabel= gsub("upper","up",SiteLabel)) %>%
                         rename(SYSTEM_SITE_EPAD = RETURN_SITE_NAME,
                                CU_ID_EPAD = CU_INDEX,
                                CU_NAME_EPAD = CU_NAME)  %>%
