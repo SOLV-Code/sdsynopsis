@@ -60,7 +60,7 @@ rosetta.pop <- nuseds.info %>% select(SPECIES_QUALIFIED,POP_ID,SYSTEM_SITE, FULL
 
 
 nuseds.db <- nuseds.db %>%
-                rename(Site_Type = GFE_TYPE,Species = SPECIES_QUALIFIED )  %>%
+                rename(Species = SPECIES )  %>%
                 # remove up to 2 leading zeroes to get nuseds ID
                 mutate(CU_ID_Short = gsub("-0","-",gsub("-0","-",CU_ID) ))  %>%
                 mutate(CU_ID_Min = gsub("-","",CU_ID_Short))  %>%
