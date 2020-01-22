@@ -63,7 +63,7 @@ nuseds.db <- nuseds.db %>%
                 rename(Species = SPECIES )  %>%
                 left_join(select(rosetta.pop,POP_ID,CU_ID_Min,SiteLabel),by="POP_ID")
 
-saveRDS(nuseds.db, gsub(".RDS","_mod.RDS",nuseds.rds.file))
+saveRDS(nuseds.db, gsub("\\.RDS","_mod.RDS",nuseds.rds.file))
 
 
 epad.db <- epad.db %>%  mutate(SiteLabel = paste(CU_INDEX, tolower(RETURN_SITE_NAME),sep="_"))  %>%
@@ -78,7 +78,7 @@ epad.db <- epad.db %>%  mutate(SiteLabel = paste(CU_INDEX, tolower(RETURN_SITE_N
                         mutate(CU_ID_Short = gsub("-0","-",gsub("-0","-",CU_ID_EPAD) ))  %>%
                         mutate(CU_ID_Min = gsub("-","",CU_ID_Short))  %>%
 
-saveRDS(epad.db, gsub(".RDS","_mod.RDS",epad.rds.file))
+saveRDS(epad.db, gsub("\\.RDS","_mod.RDS",epad.rds.file))
 
 
 
