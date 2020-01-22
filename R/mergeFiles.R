@@ -78,10 +78,9 @@ epad.db <- epad.db %>%  mutate(SiteLabel = paste(CU_INDEX, tolower(RETURN_SITE_N
                                CU_ID_EPAD = CU_INDEX,
                                CU_NAME_EPAD = CU_NAME)  %>%
                         mutate(CU_ID_Short = gsub("-0","-",gsub("-0","-",CU_ID_EPAD) ))  %>%
-                        mutate(CU_ID_Min = gsub("-","",CU_ID_Short))  %>%
+                        mutate(CU_ID_Min = gsub("-","",CU_ID_Short))
 
-  print("test")
-print(gsub("\\.RDS","_mod.RDS",epad.rds.file))
+
 saveRDS(epad.db, gsub("\\.RDS","_mod.RDS",epad.rds.file))
 
 
