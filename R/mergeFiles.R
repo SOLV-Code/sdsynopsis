@@ -60,7 +60,7 @@ rosetta.pop <- nuseds.info %>% select(SPECIES_QUALIFIED,POP_ID,SYSTEM_SITE, FULL
 
 
 nuseds.db <- nuseds.db %>%
-                rename(CU_ID = FULL_CU_IN,Site_Type = GFE_TYPE,Species = SPECIES_QUALIFIED )  %>%
+                rename(Site_Type = GFE_TYPE,Species = SPECIES_QUALIFIED )  %>%
                 # remove up to 2 leading zeroes to get nuseds ID
                 mutate(CU_ID_Short = gsub("-0","-",gsub("-0","-",CU_ID) ))  %>%
                 mutate(CU_ID_Min = gsub("-","",CU_ID_Short))  %>%
@@ -69,7 +69,8 @@ nuseds.db <- nuseds.db %>%
                 mutate(SiteLabel= gsub(" ","",SiteLabel))  %>%
                 mutate(SiteLabel= gsub("river","r",SiteLabel))  %>%
                 mutate(SiteLabel= gsub("creek","cr",SiteLabel))  %>%
-                mutate(SiteLabel= gsub("upper","up",SiteLabel))
+                mutate(SiteLabel= gsub("upper","up",SiteLabel)) %>%
+                left_join(select(rosetta.pop,CU_ID_Min,SiteLabel),by="SiteLabel")
 
 saveRDS(nuseds.db, gsub(".RDS","_mod.RDS",nuseds.rds.file))
 
