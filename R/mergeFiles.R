@@ -87,9 +87,8 @@ saveRDS(epad.db, gsub("\\.RDS","_mod.RDS",epad.rds.file))
 
 
 # add in CU info
-rosetta.cu <- rosetta.pop %>% select(Species,CU_ID_Min,CU_ID_Short,CU_ID, CU_NAME,CU_ACRO,FAZ_ACRO,MAZ_ACRO,JAZ_ACRO,
-                                      AREA) %>% distinct()
-
+rosetta.cu <- rosetta.pop %>% select(Species,CU_ID_Min,CU_ID_Short,CU_ID, CU_NAME,CU_ACRO,AREA) %>% distinct()
+# FAZ_ACRO,MAZ_ACRO,JAZ_ACRO
 
 write.csv(rosetta.cu,paste0(lookup.folder,"/Generated_RosettaFile_CU.csv"),row.names=FALSE)
 
