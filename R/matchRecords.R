@@ -18,13 +18,13 @@
 #'            mrp.rds.file = "DATA/RDSFiles/MRP.RDS" )}
 
 
-matchRecords<- function(nuseds.rds.file,nuseds.pop.info,epad.rds.file,mrp.rds.file,
+matchRecords <- function(nuseds.rds.file,nuseds.pop.info,epad.rds.file,mrp.rds.file,
                        out.folder = "OUTPUT",
                        tracking.folder = "DATA/TrackingFiles",
                        lookup.folder = "DATA/LookupFiles"){
 
 
-warning("Need to build in GFE_ID based match for EPAD")
+#warning("Need to build in GFE_ID based match for EPAD")
 
 
 if(any(is.null(nuseds.rds.file),is.null(nuseds.pop.info),
@@ -59,8 +59,9 @@ rosetta.pop <- nuseds.info %>% select(SPECIES_QUALIFIED,POP_ID,GFE_ID,SYSTEM_SIT
                         # remove up to 2 leading zeroes to get nuseds ID
                     mutate(CU_ID_Short = gsub("-0","-",gsub("-0","-",CU_ID) ))  %>%
                     mutate(CU_ID_Min = gsub("-","",CU_ID_Short))  %>%
-                    mutate(SiteLabel = paste(CU_ID_Short, tolower(SYSTEM_SITE),sep="_"))  %>%
-                    mutate(SiteLabel= gsub("[^[:alnum:]]","",SiteLabel))  %>%  # this should take of all weird symbols
+                    mutate(SiteLabel = paste(CU_ID_Short, gsub("[^[:alnum:]]","",tolower(SYSTEM_SITE)),sep="_"))  %>%
+                    # the lines below are earlier attempts, keep as ref for now
+                    #mutate(SiteLabel= gsub("[^[:alnum:]]","",SiteLabel))  %>%  # this messes up the separate() below
                     #mutate(SiteLabel= gsub("-","",SiteLabel))  %>%       #str_replace was skipping rows?
                     #mutate(SiteLabel= gsub(" ","",SiteLabel))  %>%
                     mutate(SiteLabel= gsub("river","r",SiteLabel))  %>%
@@ -73,8 +74,9 @@ nuseds.db <- nuseds.db %>%
                 left_join(select(rosetta.pop,POP_ID,GFE_ID, CU_ID_Min,SiteLabel),by="POP_ID")
 
 
-epad.db <- epad.db %>%  mutate(SiteLabel = paste(CU_INDEX, tolower(RETURN_SITE_NAME),sep="_"))  %>%
-                        mutate(SiteLabel= gsub("[^[:alnum:]]","",SiteLabel))  %>%  # this should take of all weird symb
+epad.db <- epad.db %>%  mutate(SiteLabel = paste(CU_INDEX, gsub("[^[:alnum:]]","",tolower(RETURN_SITE_NAME)),sep="_"))  %>%
+                        # the lines below are earlier attempts, keep as ref for now
+                        #mutate(SiteLabel= gsub("[^[:alnum:]]","",SiteLabel))  %>%  # this should take of all weird symb
                         #mutate(SiteLabel= gsub("-","",SiteLabel))  %>%
                         #mutate(SiteLabel= gsub(" ","",SiteLabel))  %>%
                         mutate(SiteLabel= gsub("river","r",SiteLabel))  %>%
@@ -89,7 +91,7 @@ epad.db <- epad.db %>%  mutate(SiteLabel = paste(CU_INDEX, tolower(RETURN_SITE_N
 
 
 epad2mrp.lookup <- unique(select(epad.db,EPAD2MRP,CU_ID_EPAD,CU_NAME_EPAD))
-epad2mrp.multiples <- epad.lookup %>% group_by(EPAD2MRP) %>% filter(n()>1) %>% arrange(EPAD2MRP)
+epad2mrp.multiples <- epad2mrp.lookup %>% group_by(EPAD2MRP) %>% filter(n()>1) %>% arrange(EPAD2MRP)
 
 
 
@@ -107,10 +109,13 @@ rosetta.pop <- left_join(rosetta.pop, epad.pop,by="SiteLabel")
 
 
 mrp.db <- mrp.db %>% mutate(EPAD2MRP = gsub("[^[:alnum:]]","",
-                              paste(SPECIES_LABEL,EPAD_RELEASE_SITE,sep="_"))) %>%
-              left_join(epad.lookup,by="EPAD2MRP")
+                              paste(SPECIES_NAME,EPAD_RELEASE_SITE,sep="_"))) %>%
+              left_join(epad2mrp.lookup,by="EPAD2MRP")
 
 
+
+
+# generate a summary
 records.summary <- data.frame(DB= c("nuseds","epad","mrp"),
                               records = c(dim(nuseds.db)[1],dim(epad.db)[1],sum(mrp.db$NumRecords_Total)),
                               sites = c(length(unique(nuseds.db$POP_ID)) ,
@@ -173,6 +178,7 @@ write.csv(cu.summary, paste0(out.folder,"/Summary_CU.csv"),row.names=FALSE)
 # CU info and Pop info with label matches across DB
 write.csv(rosetta.cu,paste0(lookup.folder,"/Generated_RosettaFile_CU.csv"),row.names=FALSE)
 write.csv(rosetta.pop,paste0(lookup.folder,"/Generated_RosettaFile_Pop.csv"),row.names=FALSE)
+write.csv(epad2mrp.lookup,paste0(lookup.folder,"/Generated_EPAD2MRP_RosettaFile.csv"),row.names=FALSE)
 
 # short summary of num records by DB
 write.csv(records.summary, "OUTPUT/Summary_Records.csv",row.names=FALSE)
