@@ -36,6 +36,7 @@ if(!dir.exists(out.folder)){dir.create(out.folder,recursive = TRUE)}
 if(!dir.exists(tracking.folder)){dir.create(tracking.folder,recursive = TRUE)}
 if(!dir.exists(lookup.folder)){dir.create(lookup.folder,recursive = TRUE)}
 
+print("starting file read")
 
 # read in files
 nuseds.db <- readRDS(nuseds.rds.file)
@@ -50,6 +51,8 @@ mrp.db <- readRDS(mrp.rds.file)
 # generate the rosetta files
 # build everything around the CU list and CU_ID in the current nuSEDS info file
 # fix column headers along the way
+
+print("starting file reorg")
 
 rosetta.pop <- nuseds.info %>% select(SPECIES_QUALIFIED,POP_ID,GFE_ID,SYSTEM_SITE, FULL_CU_IN, CU_NAME,CU_ACRO,
                        	GFE_TYPE, IS_INDICATOR, ISENH,
@@ -113,7 +116,7 @@ mrp.db <- mrp.db %>% mutate(EPAD2MRP = gsub("[^[:alnum:]]","",
               left_join(epad2mrp.lookup,by="EPAD2MRP")
 
 
-
+print("starting summaries")
 
 # generate a summary
 records.summary <- data.frame(DB= c("nuseds","epad","mrp"),
@@ -165,6 +168,9 @@ cu.summary <- sitelabel.master %>% group_by(CU) %>%
 ###############################################################################
 # OUTPUT
 
+print("starting outputs")
+
+
 # modified DB files
 saveRDS(nuseds.db, gsub("\\.RDS","_mod.RDS",nuseds.rds.file))
 saveRDS(epad.db, gsub("\\.RDS","_mod.RDS",epad.rds.file))
@@ -203,7 +209,7 @@ write.csv(sitelabel.master, paste0(tracking.folder,"/SiteLabel_MasterCheck.csv")
 #
 
 
-return("Merging Complete")
+return("Matching Complete")
 
 } # end mergeFiles()
 
