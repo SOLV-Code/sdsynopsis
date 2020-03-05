@@ -4,8 +4,13 @@
 \alias{xls2csv}
 \title{xls2csv}
 \usage{
-xls2csv(file.in, file.out, db.type = "nuSEDS", sheet.read = 1,
-  na.strings = c("", "NA"))
+xls2csv(
+  file.in,
+  file.out,
+  db.type = "nuSEDS",
+  sheet.read = 1,
+  na.strings = c("", "NA")
+)
 }
 \arguments{
 \item{file.in}{path to the input file}
