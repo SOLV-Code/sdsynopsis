@@ -5,6 +5,7 @@
 #' @param nuseds.rds.file path to the nuSEDS input file (in RDS format)
 #' @param nuseds.pop.info path to the pop/site info file from nuSEDS (in csv format)
 #' @param epad.rds.file path to the EPAD input file (in RDS format)
+#' @param mrp.rds.file path to the MRP summary input file (in RDS format)
 #' @param out.folder path for storing output (CU summary stored there)
 #' @param tracking.folder path for storing tracking files (site mismatches etc. stored there)
 #' @param lookup.folder path for storing generated lookup files ("rosetta" files stored there)
@@ -16,7 +17,7 @@
 #'            epad.rds.file =  "DATA/RDSFiles/EPAD.RDS")}
 
 
-mergeFiles <- function(nuseds.rds.file,nuseds.pop.info,epad.rds.file,
+mergeFiles <- function(nuseds.rds.file,nuseds.pop.info,epad.rds.file,mrp.rds,
                        out.folder = "OUTPUT",
                        tracking.folder = "DATA/TrackingFiles",
                        lookup.folder = "DATA/LookupFiles"){
@@ -34,7 +35,7 @@ if(!dir.exists(lookup.folder)){dir.create(lookup.folder,recursive = TRUE)}
 nuseds.db <- readRDS(nuseds.rds.file)
 nuseds.info <- read.csv(nuseds.pop.info,stringsAsFactors = FALSE, header = TRUE)
 epad.db <- readRDS(epad.rds.file)
-
+mrp.db <- readRDS(mrp.rds.file)
 
 # NEEDS MORE FILE CHECKING: Required columns etc
 
@@ -43,7 +44,7 @@ epad.db <- readRDS(epad.rds.file)
 # build everything around the CU list and CU_ID in the current nuSEDS info file
 # fix column headers along the way
 
-rosetta.pop <- nuseds.info %>% select(SPECIES_QUALIFIED,POP_ID,SYSTEM_SITE, FULL_CU_IN, CU_NAME,CU_ACRO,
+rosetta.pop <- nuseds.info %>% select(SPECIES_QUALIFIED,POP_ID,GFE_ID,SYSTEM_SITE, FULL_CU_IN, CU_NAME,CU_ACRO,
                        	GFE_TYPE, IS_INDICATOR, ISENH,
                        FAZ_ACRO,	MAZ_ACRO,	JAZ_ACRO,
                        OL_GRP_NM,	OL_GRP_N,	AREA) %>%
@@ -52,8 +53,9 @@ rosetta.pop <- nuseds.info %>% select(SPECIES_QUALIFIED,POP_ID,SYSTEM_SITE, FULL
                     mutate(CU_ID_Short = gsub("-0","-",gsub("-0","-",CU_ID) ))  %>%
                     mutate(CU_ID_Min = gsub("-","",CU_ID_Short))  %>%
                     mutate(SiteLabel = paste(CU_ID_Short, tolower(SYSTEM_SITE),sep="_"))  %>%
-                    mutate(SiteLabel= gsub("-","",SiteLabel))  %>%       #str_replace was skipping rows?
-                    mutate(SiteLabel= gsub(" ","",SiteLabel))  %>%
+                    mutate(SiteLabel= gsub("[^[:alnum:]]","",SiteLabel))  %>%  # this should take of all weird symbols
+                    #mutate(SiteLabel= gsub("-","",SiteLabel))  %>%       #str_replace was skipping rows?
+                    #mutate(SiteLabel= gsub(" ","",SiteLabel))  %>%
                     mutate(SiteLabel= gsub("river","r",SiteLabel))  %>%
                     mutate(SiteLabel= gsub("creek","cr",SiteLabel))  %>%
                     mutate(SiteLabel= gsub("upper","up",SiteLabel))
@@ -98,6 +100,59 @@ epad.pop <- epad.db %>%
 
 
 rosetta.pop <- left_join(rosetta.pop, epad.pop,by="SiteLabel")
+
+
+
+
+
+#############################
+
+epad.df <- epad.df %>% mutate(EPAD_MATCH = paste(SPEC_NAME ,SYSTEM_SITE_EPAD,sep="_"))
+epad.lookup <- unique(select(epad.df,EPAD_MATCH,CU_ID_EPAD,CU_NAME_EPAD))
+
+epad.lookup.multiples <- epad.lookup %>% group_by(EPAD_MATCH) %>% filter(n()>1) %>% arrange(EPAD_MATCH)
+write.csv(epad.lookup.multiples,"DATA/TrackingFiles/EPAD_CU_MISMATCHES.csv",row.names = FALSE)
+
+
+
+mrp.df <- mrp.df %>% mutate(EPAD_MATCH = paste(SPECIES_LABEL,EPAD_RELEASE_SITE,sep="_")) %>%
+  left_join(epad.lookup,by="EPAD_MATCH")
+
+
+############################
+
+
+
+epad.df <-  readRDS(epad.rds.file)
+nuseds.df <-  readRDS(nuseds.rds.file)
+mrp.df <- readRDS(mrp.rds.file)
+
+names(mrp.df)
+
+records.summary <- data.frame(DB= c("nuseds","epad","mrp"),
+                              records = c(dim(nuseds.df)[1],dim(epad.df)[1],sum(mrp.df$NumRecords_Total)),
+                              sites = c(length(unique(nuseds.df$POP_ID)) ,
+                                        length(unique(epad.df$SiteLabel)),
+                                        length(unique(mrp.df$EPAD_RELEASE_SITE))),
+                              first.year =  c(min(nuseds.df$ANALYSIS_YR ) ,
+                                              min(epad.df$RECOVERY_YEAR ),
+                                              min(mrp.df$RUN_YEAR)),
+                              last.year = c(max(nuseds.df$ANALYSIS_YR ) ,
+                                            max(epad.df$RECOVERY_YEAR ),
+                                            max(mrp.df$RUN_YEAR))
+)
+records.summary
+write.csv(records.summary, "OUTPUT/Summary_Records.csv",row.names=FALSE)
+
+
+###################################################
+
+
+
+
+
+
+
 
 
 write.csv(rosetta.pop,paste0(lookup.folder,"/Generated_RosettaFile_Pop.csv"),row.names=FALSE)
