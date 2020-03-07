@@ -14,7 +14,7 @@
 #' @keywords record matching/merging
 #' @export
 #' @examples
-#' \dontrun{mergeFiles(nuseds.rds.file = "DATA/RDSFiles/nuSEDS.RDS",
+#' \dontrun{matchRecords(nuseds.rds.file = "DATA/RDSFiles/nuSEDS.RDS",
 #'             nuseds.pop.info ="DATA/LookupFiles/aopen-data-portaljanuary-2019conservation_unit_system_sites.csv",
 #'            epad.rds.file =  "DATA/RDSFiles/EPAD.RDS",
 #'            mrp.rds.file = "DATA/RDSFiles/MRP.RDS" )}
