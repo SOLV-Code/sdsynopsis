@@ -9,9 +9,11 @@ matchRecords(
   nuseds.pop.info,
   epad.rds.file,
   mrp.rds.file,
+  mrp.rds.details.file,
   out.folder = "OUTPUT",
   tracking.folder = "DATA/TrackingFiles",
-  lookup.folder = "DATA/LookupFiles"
+  lookup.folder = "DATA/LookupFiles",
+  processed.folder = "DATA/LargeFiles_Processed"
 )
 }
 \arguments{
@@ -28,6 +30,10 @@ matchRecords(
 \item{tracking.folder}{path for storing tracking files (site mismatches etc. stored there)}
 
 \item{lookup.folder}{path for storing generated lookup files ("rosetta" files stored there)}
+
+\item{processed.folder}{folder path for storing modified csv files (MRP summaries with CU match stored there)}
+
+\item{epad.rds.details.file}{path to the EPAD details input file (in RDS format)}
 }
 \description{
 Function to match records across databases. Generates various outputs
