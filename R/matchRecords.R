@@ -6,9 +6,11 @@
 #' @param nuseds.pop.info path to the pop/site info file from nuSEDS (in csv format)
 #' @param epad.rds.file path to the EPAD input file (in RDS format)
 #' @param mrp.rds.file path to the MRP summary input file (in RDS format)
+#' @param epad.rds.details.file path to the EPAD details input file (in RDS format)
 #' @param out.folder path for storing output (CU summary stored there)
 #' @param tracking.folder path for storing tracking files (site mismatches etc. stored there)
 #' @param lookup.folder path for storing generated lookup files ("rosetta" files stored there)
+#' @param processed.folder folder path for storing modified csv files (MRP summaries with CU match stored there)
 #' @keywords record matching/merging
 #' @export
 #' @examples
@@ -18,10 +20,14 @@
 #'            mrp.rds.file = "DATA/RDSFiles/MRP.RDS" )}
 
 
-matchRecords <- function(nuseds.rds.file,nuseds.pop.info,epad.rds.file,mrp.rds.file,
+matchRecords <- function(nuseds.rds.file,nuseds.pop.info,
+						epad.rds.file,
+						mrp.rds.file,
+						mrp.rds.details.file,
                        out.folder = "OUTPUT",
                        tracking.folder = "DATA/TrackingFiles",
-                       lookup.folder = "DATA/LookupFiles"){
+                       lookup.folder = "DATA/LookupFiles",
+					   processed.folder = "DATA/LargeFiles_Processed"){
 
 
 #warning("Need to build in GFE_ID based match for EPAD")
@@ -43,7 +49,7 @@ nuseds.db <- readRDS(nuseds.rds.file)
 nuseds.info <- read.csv(nuseds.pop.info,stringsAsFactors = FALSE, header = TRUE)
 epad.db <- readRDS(epad.rds.file)
 mrp.db <- readRDS(mrp.rds.file)
-
+mrp.details.db <- readRDS(mrp.rds.details.file)
 
 # NEEDS MORE FILE CHECKING: Required columns etc
 
@@ -116,6 +122,11 @@ mrp.db <- mrp.db %>% mutate(EPAD2MRP = gsub("[^[:alnum:]]","",
               left_join(epad2mrp.lookup,by="EPAD2MRP")
 
 
+mrp.details.db <- mrp.details.db %>% mutate(EPAD2MRP = gsub("[^[:alnum:]]","",
+                              paste(SPECIES_NAME,EPAD_RELEASE_SITE,sep="_"))) %>%
+              left_join(epad2mrp.lookup,by="EPAD2MRP")
+
+
 print("starting summaries")
 
 # generate a summary
@@ -175,11 +186,15 @@ print("starting outputs")
 saveRDS(nuseds.db, gsub("\\.RDS","_mod.RDS",nuseds.rds.file))
 saveRDS(epad.db, gsub("\\.RDS","_mod.RDS",epad.rds.file))
 saveRDS(mrp.db, gsub("\\.RDS","_mod.RDS",mrp.rds.file))
+saveRDS(mrp.details.db, gsub("\\.RDS","_mod.RDS",mrp.rds.details.file))
 
+# modified csv files
+
+write.csv(mrp.db, paste(processed.folder,"MRP_Summary_MOD.csv",sep="/"),row.names =FALSE)
+write.csv(mrp.details.db, paste(processed.folder,"MRP_Details_MOD.csv",sep="/"),row.names =FALSE)
 
 # Main summary file
 write.csv(cu.summary, paste0(out.folder,"/Summary_CU.csv"),row.names=FALSE)
-
 
 # CU info and Pop info with label matches across DB
 write.csv(rosetta.cu,paste0(lookup.folder,"/Generated_RosettaFile_CU.csv"),row.names=FALSE)
@@ -211,7 +226,7 @@ write.csv(sitelabel.master, paste0(tracking.folder,"/SiteLabel_MasterCheck.csv")
 
 return("Matching Complete")
 
-} # end mergeFiles()
+} # end matchRecords()
 
 
 
