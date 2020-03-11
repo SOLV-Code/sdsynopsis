@@ -1,5 +1,5 @@
 #' matchRecords
-#'
+#' 
 #' Function to match records across databases. Generates various outputs
 #' (rosetta files, mismatch tracking). Target folders are generated if they don't exist
 #' @param nuseds.rds.file path to the nuSEDS input file (in RDS format)
@@ -30,7 +30,7 @@ matchRecords <- function(nuseds.rds.file,nuseds.pop.info,
 					   processed.folder = "DATA/LargeFiles_Processed"){
 
 
-#warning("Need to build in GFE_ID based match for EPAD")
+warning("Need to build in GFE_ID based match for EPAD")
 
 
 if(any(is.null(nuseds.rds.file),is.null(nuseds.pop.info),
@@ -77,6 +77,8 @@ rosetta.pop <- nuseds.info %>% select(SPECIES_QUALIFIED,POP_ID,GFE_ID,SYSTEM_SIT
                     mutate(SiteLabel= gsub("creek","cr",SiteLabel))  %>%
                     mutate(SiteLabel= gsub("upper","up",SiteLabel))
 
+print("rosetta POP --------------------")
+print(head(rosetta.pop))
 
 nuseds.db <- nuseds.db %>%
                 rename(Species = SPECIES )  %>%
@@ -115,6 +117,9 @@ epad.pop <- epad.db %>%
 
 
 rosetta.pop <- left_join(rosetta.pop, epad.pop,by="SiteLabel")
+
+print("rosetta CU --------------------")
+print(head(rosetta.cu))
 
 
 mrp.db <- mrp.db %>% mutate(EPAD2MRP = gsub("[^[:alnum:]]","",
@@ -171,10 +176,11 @@ cu.summary <- sitelabel.master %>% group_by(CU) %>%
             nuseds.only = sum(nuSEDS & !(EPAD)),
             epad.only = sum(!(nuSEDS) & EPAD)
   )   %>%
-  rename(CU_ID_Min = CU)  %>%
+  mutate(CU_ID_Min = gsub("-","",CU))  %>%
+  select(-CU) %>%
   left_join( rosetta.cu,by="CU_ID_Min") # add in CU info
 
-
+print(head(cu.summary))
 
 ###############################################################################
 # OUTPUT
