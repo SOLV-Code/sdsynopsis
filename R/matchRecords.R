@@ -20,7 +20,7 @@
 #'            mrp.rds.file = "DATA/RDSFiles/MRP.RDS" )}
 
 
-matchRecords <- function(nuseds.rds.file,nuseds.pop.info,
+matchRecordsTEST <- function(nuseds.rds.file,nuseds.pop.info,
 						epad.rds.file,
 						mrp.rds.file,
 						mrp.rds.details.file,
@@ -54,6 +54,10 @@ mrp.details.db <- readRDS(mrp.rds.details.file)
 # NEEDS MORE FILE CHECKING: Required columns etc
 
 
+
+
+
+
 # generate the rosetta files
 # build everything around the CU list and CU_ID in the current nuSEDS info file
 # fix column headers along the way
@@ -82,7 +86,23 @@ print(head(rosetta.pop))
 
 nuseds.db <- nuseds.db %>%
                 rename(Species = SPECIES )  %>%
-                left_join(select(rosetta.pop,POP_ID,GFE_ID, CU_ID_Min,SiteLabel),by="POP_ID")
+                left_join(select(rosetta.pop,POP_ID,GFE_ID, CU_ID_Min,SiteLabel),by="POP_ID") %>%
+				mutate(EST_QUAL = recode(ESTIMATE_CLASSIFICATION, 
+                         "TRUE ABUNDANCE (TYPE-1)"="H",
+                         "TRUE ABUNDANCE (TYPE-2)" ="H",
+						 "RELATIVE ABUNDANCE (TYPE-3)"  ="M",
+						 "RELATIVE ABUNDANCE (TYPE-4)" ="M",
+						 "RELATIVE ABUNDANCE (TYPE-5)" ="L",
+						 "PRESENCE-ABSENCE (TYPE-6)" ="L",						 
+						 "NO SURVEY THIS YEAR"  = "UNK",	
+						 "RELATIVE: CONSTANT MULTI-YEAR METHODS"  = "UNK",
+						 "RELATIVE: VARYING MULTI-YEAR METHODS"  = "UNK",
+						 "UNKNOWN"   = "UNK" 
+						 )
+						 )
+
+nuseds.db$EST_QUAL[nuseds.db$EST_QUAL == ""] <- "UNK"
+ 
 
 
 epad.db <- epad.db %>%  mutate(SiteLabel = paste(CU_INDEX, gsub("[^[:alnum:]]","",tolower(RETURN_SITE_NAME)),sep="_"))  %>%
@@ -98,7 +118,9 @@ epad.db <- epad.db %>%  mutate(SiteLabel = paste(CU_INDEX, gsub("[^[:alnum:]]","
                                CU_NAME_EPAD = CU_NAME)  %>%
                         mutate(CU_ID_Short = gsub("-0","-",gsub("-0","-",CU_ID_EPAD) ))  %>%
                         mutate(CU_ID_Min = gsub("-","",CU_ID_Short))%>%
-                        mutate(EPAD2MRP = gsub("[^[:alnum:]]","",paste(SPEC_NAME ,SYSTEM_SITE_EPAD,sep="_")))
+                        mutate(EPAD2MRP = gsub("[^[:alnum:]]","",paste(SPEC_NAME ,SYSTEM_SITE_EPAD,sep="_"))) 
+						
+						
 
 
 epad2mrp.lookup <- unique(select(epad.db,EPAD2MRP,CU_ID_EPAD,CU_NAME_EPAD))
