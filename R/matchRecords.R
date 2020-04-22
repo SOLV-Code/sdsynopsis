@@ -20,7 +20,7 @@
 #'            mrp.rds.file = "DATA/RDSFiles/MRP.RDS" )}
 
 
-matchRecordsTEST <- function(nuseds.rds.file,nuseds.pop.info,
+matchRecords <- function(nuseds.rds.file,nuseds.pop.info,
 						epad.rds.file,
 						mrp.rds.file,
 						mrp.rds.details.file,
@@ -123,7 +123,7 @@ epad.db <- epad.db %>%  mutate(SiteLabel = paste(CU_INDEX, gsub("[^[:alnum:]]","
 						
 
 
-epad2mrp.lookup <- unique(select(epad.db,EPAD2MRP,CU_ID_EPAD,CU_NAME_EPAD))
+epad2mrp.lookup <- unique(select(epad.db,EPAD2MRP,CU_ID_EPAD,CU_NAME_EPAD,CU_ID_Short,CU_ID_Min))
 epad2mrp.multiples <- epad2mrp.lookup %>% group_by(EPAD2MRP) %>% filter(n()>1) %>% arrange(EPAD2MRP)
 
 
